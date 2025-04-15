@@ -5,7 +5,7 @@ using UnityEngine;
 public class Move : MonoBehaviour
 {
 
-    float speed;
+    public float speed;
     float angle;
     public GameObject target;
     public GameObject jumpdir;
@@ -36,8 +36,17 @@ public class Move : MonoBehaviour
             target.GetComponent<Animator>().SetTrigger("isAttack");
         }
 
+        PlayerMove();
         
     }
 
-    
+    public void PlayerMove()
+    {
+        float MoveX = Input.GetAxis("Horizontal");
+
+        Vector2 dir = new Vector2(MoveX, 0);
+
+        rigid.AddForce(dir * speed * Time.deltaTime, ForceMode2D.Impulse);
+
+    }
 }
