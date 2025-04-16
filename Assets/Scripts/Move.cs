@@ -5,13 +5,13 @@ using UnityEngine;
 public class Move : MonoBehaviour
 {
 
-    public float speed;
-    float angle;
-    public GameObject target;
-    public GameObject jumpdir;
-    Vector2 mouse;
-    Rigidbody2D rigid;
-    public float GunPower = 5;
+    public float speed;         //이동 속도
+    float angle;                //발사 각도(쓸일 없음)
+    public GameObject target;   //날라갈 때 사용할 오브젝트(shotgun)의 방향
+    public GameObject jumpdir;  //실제로 날아갈 방향
+    Vector2 mouse;              //마우스 방향
+    Rigidbody2D rigid;          //rigidbody2D
+    public float GunPower = 5;  //총 파워
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
