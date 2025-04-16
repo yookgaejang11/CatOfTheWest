@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Move : MonoBehaviour
 {
-
+    bool isShoot = false;       //발사했는가 체크
     public float speed;         //이동 속도
     float angle;                //발사 각도(쓸일 없음)
     public GameObject target;   //날라갈 때 사용할 오브젝트(shotgun)의 방향
@@ -22,22 +22,10 @@ public class Move : MonoBehaviour
     }
     private void Update()
     {
-        mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        angle = Mathf.Atan2(mouse.y - target.transform.position.y, mouse.x - target.transform.position.x) * Mathf.Rad2Deg;
-        target.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-
        
-        jumpdir.transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
-
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-        {
-            Debug.Log("adfd");
-            rigid.AddForce(-jumpdir.transform.up * GunPower * Time.deltaTime, ForceMode2D.Impulse);
-            target.GetComponent<Animator>().SetTrigger("isAttack");
-        }
 
         PlayerMove();
-        
+        Shootgun();
     }
 
     public void PlayerMove()
@@ -48,5 +36,22 @@ public class Move : MonoBehaviour
 
         rigid.AddForce(dir * speed * Time.deltaTime, ForceMode2D.Impulse);
 
+    }
+
+    void Shootgun()
+    {
+        mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        angle = Mathf.Atan2(mouse.y - target.transform.position.y, mouse.x - target.transform.position.x) * Mathf.Rad2Deg;
+        target.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+
+
+        jumpdir.transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            Debug.Log("adfd");
+            rigid.AddForce(-jumpdir.transform.up * GunPower * Time.deltaTime, ForceMode2D.Impulse);
+            target.GetComponent<Animator>().SetTrigger("isAttack");
+        }
     }
 }

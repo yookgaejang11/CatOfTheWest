@@ -1,9 +1,9 @@
 fileFormatVersion: 2
-guid: cb3bcf6afed26874e80f2a1c118ed62a
+guid: 1298d2f06dedf154a9b87102919ea0b3
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
-  serializedVersion: 12
+  serializedVersion: 13
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -20,11 +20,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMasterTextureLimit: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -63,6 +64,7 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
+  swizzle: 50462976
   cookieLightType: 0
   platformSettings:
   - serializedVersion: 3
@@ -75,6 +77,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -87,6 +90,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -99,6 +103,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -111,6 +116,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -123,18 +129,19 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: grey_0
+      name: tabby_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1140
+        width: 1221
         height: 1178
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -143,20 +150,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 36c7ccdac277f1244a1c6356e50b268b
-      internalID: -1463660079
+      spriteID: fa42169b984a7d945875a5eb9476af6c
+      internalID: 490155762
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: grey_1
+      name: tabby_1
       rect:
         serializedVersion: 2
-        x: 1344
-        y: 38
-        width: 1101
-        height: 1140
+        x: 1347
+        y: 42
+        width: 1221
+        height: 1136
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -164,19 +171,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ce1eaab59674ee14082664bc8f23ca4e
-      internalID: 1428637733
+      spriteID: 2c864a53d55a5e44fa463f14637e11ad
+      internalID: -1771136174
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: grey_2
+      name: tabby_2
       rect:
         serializedVersion: 2
-        x: 2480
+        x: 2652
         y: 0
-        width: 1143
+        width: 1221
         height: 1178
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -185,20 +192,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 42f772534efdbec4582a3c11ed9a5f8f
-      internalID: 197355823
+      spriteID: 5924660ed1620c9459ac359103fc2fae
+      internalID: 2124621765
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: grey_3
+      name: tabby_3
       rect:
         serializedVersion: 2
-        x: 3827
-        y: 38
-        width: 1143
-        height: 1140
+        x: 3999
+        y: 42
+        width: 1221
+        height: 1136
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -206,20 +213,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fa6b52fd87e645c4d9ad904b8888ec93
-      internalID: -1331855150
+      spriteID: e2be4caed84513140851e0a0642c24b8
+      internalID: 970713685
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: grey_4
+      name: tabby_4
       rect:
         serializedVersion: 2
-        x: 5390
-        y: 506
-        width: 672
-        height: 672
+        x: 5389
+        y: 884
+        width: 294
+        height: 294
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -227,8 +234,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bb3865b020d938f4dad4d7865c47b8b9
-      internalID: -246117727
+      spriteID: ee3a86e3d7ba0004ea7d0137ac36f9e7
+      internalID: -118370297
       vertices: []
       indices: 
       edges: []
@@ -244,14 +251,13 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      grey_0: -1463660079
-      grey_1: 1428637733
-      grey_2: 197355823
-      grey_3: -1331855150
-      grey_4: -246117727
-  spritePackingTag: 
+      tabby_0: 490155762
+      tabby_1: -1771136174
+      tabby_2: 2124621765
+      tabby_3: 970713685
+      tabby_4: -118370297
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
