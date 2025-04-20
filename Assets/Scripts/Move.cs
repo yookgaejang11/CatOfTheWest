@@ -73,9 +73,13 @@ public class Move : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0) && currentBullet > 0)
         {
-            currentBullet -= 1;
+           
             rigid.AddForce(-jumpdir.transform.up * GunPower, ForceMode2D.Impulse);
             target.GetComponent<Animator>().SetTrigger("isAttack");
+            if (!isGround)
+            {
+                currentBullet -= 1;
+            }
             BulletUpdate();
 
         }
