@@ -31,10 +31,7 @@ public class Move : MonoBehaviour
         Debug.DrawRay(transform.position, Vector3.down * rayDistance, Color.red);
         ray = Physics2D.Raycast(transform.position,Vector2.down,rayDistance,LayerMask.GetMask("Ground"));
 
-        if (isGround)
-        {
-            currentBullet = maxBullet;
-        }
+       
 
         PlayerMove();
         Shootgun();
@@ -79,8 +76,8 @@ public class Move : MonoBehaviour
             if (!isGround)
             {
                 currentBullet -= 1;
+                BulletUpdate();
             }
-            BulletUpdate();
 
         }
     }
@@ -90,8 +87,12 @@ public class Move : MonoBehaviour
     {
         if(collision.gameObject.CompareTag("Ground") && ray.collider != null)
         {
-            isGround = true;
-            BulletUpdate();
+            if (!isGround)
+            {
+                isGround = true;
+                currentBullet = maxBullet;
+                BulletUpdate();
+            }
         }
     }
 
