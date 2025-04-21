@@ -57,6 +57,8 @@ public class Move : MonoBehaviour
 
         rigid.AddForce(dir * speed * Time.deltaTime, ForceMode2D.Impulse);
 
+
+
     }
 
     void Shootgun()
