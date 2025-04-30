@@ -18,6 +18,8 @@ public class Move : MonoBehaviour
     bool isGround;                                              //땅에 닿았는가 판정
     public float rayDistance = 3;                               //레이 길이 
     RaycastHit2D ray;                                           //레이캐스트
+    public float maxSpeedx;
+    public float maxSpeedy;
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -57,9 +59,21 @@ public class Move : MonoBehaviour
 
         rigid.AddForce(dir * speed * Time.deltaTime, ForceMode2D.Impulse);
 
-
-
+        if (rigid.velocity.x >= maxSpeedx) 
+        {
+            rigid.velocity = new Vector2(maxSpeedx, rigid.velocity.y); 
+        }
+        else if  (rigid.velocity.x <= -maxSpeedx)
+        {
+            rigid.velocity = new Vector2(-maxSpeedx, rigid.velocity.y); 
+        }
+        if (rigid.velocity.y >= maxSpeedy)
+        {
+            rigid.velocity = new Vector2(rigid.velocity.x,maxSpeedy);
+        }
     }
+
+
 
     void Shootgun()
     {
