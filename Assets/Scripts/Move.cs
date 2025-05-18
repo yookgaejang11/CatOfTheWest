@@ -144,9 +144,9 @@ public class Move : MonoBehaviour
     {
         float MoveX = Input.GetAxis("Horizontal");
 
-        transform.position += new Vector3(MoveX * speed * Time.deltaTime,0,0);
+        transform.position += new Vector3(MoveX * speed * Time.deltaTime, 0, 0);
 
-        if(Input.GetAxis("Horizontal") != 0)
+        if (Input.GetAxis("Horizontal") != 0)
         {
             isWalk = true;
         }
@@ -181,6 +181,7 @@ public class Move : MonoBehaviour
 
     void Shootgun()
     {
+        float moveX = Input.GetAxis("Horizontal");
         mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         angle = Mathf.Atan2(mouse.y - target.transform.position.y, mouse.x - target.transform.position.x) * Mathf.Rad2Deg;
         target.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
