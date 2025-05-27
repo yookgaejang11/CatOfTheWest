@@ -194,6 +194,8 @@ public class Move : MonoBehaviour
             GameObject shootObj = Instantiate(bullet,target.transform.position,target.transform.rotation); 
             rigid.AddForce(-jumpdir.transform.up * GunPower, ForceMode2D.Impulse);
             target.GetComponent<Animator>().SetTrigger("isAttack");
+            StartCoroutine(Shake(0.2f, 0.1f));
+            Debug.Log("dd");
 
             if(!isGround)
             {
@@ -223,5 +225,25 @@ public class Move : MonoBehaviour
         {
             isGround = false;   
         }
+    }
+    public IEnumerator Shake(float time, float power)
+    {
+        Transform camTransform = Camera.main.transform;
+        Vector3 originalPos = camTransform.localPosition;
+
+        float elapsed = 0f;
+
+        while (elapsed < time)
+        {
+            float x = Random.Range(-1f, 1f) * power;
+            float y = Random.Range(-1f, 1f) * power;
+
+            camTransform.localPosition = originalPos + new Vector3(x, y, 0f);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        camTransform.localPosition = originalPos;
     }
 }
