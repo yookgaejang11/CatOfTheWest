@@ -64,10 +64,12 @@ public class Enemy : MonoBehaviour
             if(pos.x < 0)
             {
                 this.GetComponent<SpriteRenderer>().flipX = true;
+                transform.GetChild(0).transform.localPosition = new Vector2(-1.254f, -0.593f);
             }
             else
             {
                 this.GetComponent<SpriteRenderer>().flipX = false;
+                transform.GetChild(0).transform.localPosition = new Vector2(1.254f, -0.593f);
             }
         }
 
@@ -78,7 +80,7 @@ public class Enemy : MonoBehaviour
         if (isFInd)
         {
             pos = GameObject.Find("Player").transform.position - transform.position;
-            transform.position += new Vector3(pos.x, 0, 0) * Time.deltaTime;
+            rigid.velocity = new Vector3(pos.x, 0, 0);
             /*else//감지 안됬을때 움직이는 코드임
             {
                 rigid.AddForce(Vector2.right,ForceMode2D.Impulse);
@@ -91,7 +93,7 @@ public class Enemy : MonoBehaviour
         }
 
 
-
+        rigid.velocity = new Vector2(rigid.velocity.x * 0.99f, 0);
     }
 
 
@@ -102,7 +104,7 @@ public class Enemy : MonoBehaviour
             isShoot = false;
             pos = GameObject.Find("Player").transform.position - transform.position;
             GameObject ammo = bullet;
-            GameObject.Instantiate(ammo, transform.position - new Vector3(0.6f,0.7f,0), Quaternion.identity);
+            GameObject.Instantiate(ammo, transform.GetChild(0).transform.position, Quaternion.identity);
             yield return new WaitForSeconds(0.75f);
             isShoot=true;
         }

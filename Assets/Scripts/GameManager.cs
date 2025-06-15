@@ -33,6 +33,8 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         StartCoroutine(Timer());
+
+
     }
 
     IEnumerator Timer()
@@ -44,14 +46,23 @@ public class GameManager : MonoBehaviour
             timer.text = "Time\n" + overTime;
             overTime -=1;
 
-            if( overTime < 0)
+            if( overTime <= 0)
             {
                 overTime = 0;
                 StageOver = true;
+                TimeOver();
             }
             yield return new WaitForSeconds(1);
             isTIme=false;
         }
+    }
+
+    void TimeOver()
+    {
+        StageOver = true;
+        overTime = 0;
+        UIManager.Instance.fullText = "Time\nOver";
+        UIManager.Instance.ShowGameOver();
     }
 
     public static GameManager Instance

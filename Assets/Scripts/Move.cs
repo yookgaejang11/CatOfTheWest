@@ -6,6 +6,10 @@ using UnityEngine;
 
 public class Move : MonoBehaviour
 {
+    bool isHit = false;
+    public Vector2 moveDirection;                                      //이동벡터
+    public float MoveX = 0;
+    public float currentspeed;
     public GameObject bullet;                                    //총알 obj
     bool isDie = false;                                         //게임오버 판정
     public int MaxHp = 3;                                       //최대 hp        
@@ -25,9 +29,9 @@ public class Move : MonoBehaviour
     Vector2 mouse;                                              //마우스 방향
     Rigidbody2D rigid;                                          //rigidbody2D
     public float GunPower = 5;                                  //총 파워
-    bool isGround;                                              //땅에 닿았는가 판정
+    public bool isGround;                                       //땅에 닿았는가 판정
     public float rayDistance = 3;                               //레이 길이 
-    RaycastHit2D ray;                                           //레이캐스트
+    public RaycastHit2D ray;                                           //레이캐스트
     public float maxSpeedx;
     public float maxSpeedy;
     private void Awake()
@@ -41,43 +45,65 @@ public class Move : MonoBehaviour
     }
     private void Update()
     {
-        Debug.DrawRay(transform.position, Vector3.down * rayDistance, Color.red);
-        ray = Physics2D.Raycast(transform.position,Vector2.down,rayDistance,LayerMask.GetMask("Ground") );
-        
-        if(Input.GetButtonUp("Horizontal") && isGround)
+   
+        if (!isDie)
         {
-            rigid.velocity = new Vector2(rigid.velocity.normalized.x * 0.7f, rigid.velocity.normalized.y);
+            currentspeed = rigid.velocity.magnitude;
+            Debug.DrawRay(transform.position, Vector3.down * rayDistance, Color.red);
+            ray = Physics2D.Raycast(transform.position, Vector2.down, rayDistance, LayerMask.GetMask("Ground"));
+
+            if (Input.GetButtonUp("Horizontal") && isGround)
+            {
+                rigid.velocity = new Vector2(rigid.velocity.x * 0.7f, rigid.velocity.y);
+            }
+
+            if (angle > 90 || angle < -90)
+            {
+                gunObj.GetComponent<SpriteRenderer>().flipY = true;
+            }
+            else if (angle <= 90 || angle >= -90)
+            {
+                gunObj.GetComponent<SpriteRenderer>().flipY = false;
+            }
+
+            if (isWalk)
+            {
+                animator.SetBool("isMove", true);
+            }
+            else
+            {
+                animator.SetBool("isMove", false);
+            }
+            PlayerMove();
+            StartCoroutine(Shootgun());
+            /*if (isGround)
+            {
+                speed = 5;
+            }
+            else if(!isGround)
+            {
+                speed = 3;
+            }*/
+           
+
+            if (isGround && Mathf.Abs(rigid.velocity.x) > 0)
+            {
+                rigid.velocity = new Vector2(rigid.velocity.x * 0.99f, rigid.velocity.y);
+            }
+            
+
+            /*if (!isGround)
+            {
+                rigid.velocity = new Vector2(rigid.velocity.x * 0.98f, rigid.velocity.y);
+            }*/
         }
 
-        if (angle > 90 || angle< -90)
-        {
-            gunObj.GetComponent<SpriteRenderer>().flipY = true;
-        }
-        else if (angle <= 90 ||angle >= -90)
-        {
-            gunObj.GetComponent<SpriteRenderer>().flipY = false;
-        }
-        if (isGround && !isShoot)
+        if(isGround)
         {
             currentBullet = maxBullet;
-            bulletText.text = "x" + currentBullet;
         }
 
-        if (isWalk)
-        {
-            animator.SetBool("isMove",true);
-        }
-        else
-        {
-            animator.SetBool("isMove", false);
-        }
-        PlayerMove();
-        Shootgun();
-
-        if(isGround && Mathf.Abs(rigid.velocity.x) >0)
-        {
-            rigid.velocity = new Vector2(rigid.velocity.x * 0.99f, rigid.velocity.y);
-        }
+        bulletText.text = "x" + currentBullet;
 
     }
 
@@ -98,21 +124,30 @@ public class Move : MonoBehaviour
 
     public void SetHp(int damage)
     {
-        currentHp -= damage;
-        StartCoroutine(Invisible());
-        if (currentHp < 0)
+        if (!isHit)
         {
-            currentHp = 0;
-            isDie = true;
+            currentHp -= damage;
+            StartCoroutine(Invisible());
+            if (currentHp <= 0 && !isDie)
+            {
+                Debug.Log("dfadf");
+                currentHp = 0;
+                isDie = true;
+
+                UIManager.Instance.fullText = "Game\nOver";
+                UIManager.Instance.ShowGameOver();
+                GameManager.Instance.StageOver = true;
+            }
+            HpUpdate();
         }
-        HpUpdate();
+        
     }
 
     IEnumerator Invisible()
     {
         Physics2D.IgnoreLayerCollision(7, 8, true);
-        
-        
+
+        isHit = true;
         this.gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
         yield return new WaitForSeconds(0.1f);
         this.gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
@@ -139,13 +174,13 @@ public class Move : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         this.gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
         Physics2D.IgnoreLayerCollision(7, 8, false);
+
+        isHit = false;
     }
     public void PlayerMove()
     {
-        float MoveX = Input.GetAxis("Horizontal");
-
-        transform.position += new Vector3(MoveX * speed * Time.deltaTime, 0, 0);
-
+        MoveX = Input.GetAxis("Horizontal");
+        rigid.AddForce(new Vector2(MoveX * speed,0),ForceMode2D.Force);
         if (Input.GetAxis("Horizontal") != 0)
         {
             isWalk = true;
@@ -179,44 +214,71 @@ public class Move : MonoBehaviour
 
 
 
-    void Shootgun()
+    IEnumerator Shootgun()
     {
         float moveX = Input.GetAxis("Horizontal");
         mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         angle = Mathf.Atan2(mouse.y - target.transform.position.y, mouse.x - target.transform.position.x) * Mathf.Rad2Deg;
         target.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-                                                                                                                            
 
         jumpdir.transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
 
         if (Input.GetKeyDown(KeyCode.Mouse0) && currentBullet > 0)
         {
-            GameObject shootObj = Instantiate(bullet,target.transform.position,target.transform.rotation); 
-            rigid.AddForce(-jumpdir.transform.up * GunPower, ForceMode2D.Impulse);
+            maxSpeedx = 15;
+            GameObject shootObj = Instantiate(bullet, target.transform.position, target.transform.rotation);
+            moveDirection = -jumpdir.transform.up * GunPower;
             target.GetComponent<Animator>().SetTrigger("isAttack");
-            StartCoroutine(Shake(0.2f, 0.1f));
+            StartCoroutine(Shake(0.4f, 0.3f));
             Debug.Log("dd");
-
-            if(!isGround)
+            rigid.velocity = new Vector2(rigid.velocity.x, rigid.velocity.y) + moveDirection;
+            if (!isGround)
             {
                 currentBullet -= 1;
-                bulletText.text = "x" + currentBullet;
+
             }
-            isShoot = true; // 발사했으니 true
+            yield return new WaitForSeconds(0.05f);
+            for (float i = maxSpeedx; i > 10; i--)
+            {
+                maxSpeedx -= 0.5f;
+                i = maxSpeedx;
+                yield return new WaitForSeconds(0.05f);
+            }
+            maxSpeedx = 10;
         }
+       
     }
 
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground") && ray.collider != null)
+        if (ray.collider != null)
         {
-            if (!isGround)
+            Debug.Log("왜 됨?");
+            if (collision.gameObject.CompareTag("Ground") && ray.collider.name == "floor")
             {
+
                 isGround = true;
-                isShoot = false; // 땅에 닿았을 때 초기화
             }
         }
+        else
+        {
+            isGround = false;
+            Debug.Log("adfasdf");
+        }
+
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            SetHp(1);
+
+        }
+
+        if(collision.gameObject.name == "traps")
+        {
+            SetHp(1);
+        }
+        
+
     }
 
     private void OnCollisionExit2D(Collision2D collision)
