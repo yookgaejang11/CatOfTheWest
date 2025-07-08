@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
         if(!StageClear && !StageOver && !isTIme && !isPause)
         {
             isTIme = true;
-            timer.text = "Time\n" + overTime;
+            timer.text = "TIME\n" + overTime;
             overTime -=1;
 
             if( overTime <= 0)
