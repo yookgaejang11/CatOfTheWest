@@ -7,15 +7,27 @@ using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
+    bool isPause;
+    public GameObject pauseUi;
     private static UIManager instance;
+    public TextMeshProUGUI scoreTxt;
+    [Header("#GameOver")]
     public GameObject GameoverUi;
     public RectTransform board;
     public CanvasGroup homeButton;
     public CanvasGroup retryButton;
     public CanvasGroup bg;
     private Vector3 originalPos;
-
     public TextMeshProUGUI tmpText;
+    [Header("#GameClear")]
+    public GameObject GameClearUi;
+    public RectTransform board1;
+    public CanvasGroup homeButton1;
+    public CanvasGroup NextButton;
+    public CanvasGroup retryButton1;
+    public CanvasGroup bg1;
+    private Vector3 originalPos1;
+    public TextMeshProUGUI tmpText1;
     [TextArea]
     public string fullText = "Game\nOver";
     public float typingSpeed = 0.05f;
@@ -35,11 +47,40 @@ public class UIManager : MonoBehaviour
     }
     void Start()
     {
+        
         tmpText.text = "";
         originalPos = board.anchoredPosition;
+        originalPos1 = board1.anchoredPosition;
         GameoverUi.SetActive(false);
     }
 
+
+    private void Update()
+    {
+        scoreTxt.text = "SCORE\n" + GameManager.Instance.score.ToString();
+        if(!isPause && Input.GetKeyDown(KeyCode.Escape))
+        {
+            isPause = true;
+            GameManager.Instance.isPause = true;
+            pauseUi.SetActive(true);
+            Time.timeScale = 0;
+        }
+        else if(isPause && Input.GetKeyDown(KeyCode.Escape))
+        {
+            isPause = false;
+            GameManager.Instance.isPause = false;
+            pauseUi.SetActive(false);
+            Time.timeScale = 1;
+        }
+    }
+
+    public void Resume()
+    {
+        isPause = false;
+        GameManager.Instance.isPause = false;
+        pauseUi.SetActive(false);
+        Time.timeScale = 1;
+    }
     public void HomeBtn()
     {
         SceneManager.LoadScene(0);
@@ -48,6 +89,11 @@ public class UIManager : MonoBehaviour
     public void RetryBtn()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void NextBtn()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
     public void ShowGameOver()
     {
@@ -67,8 +113,38 @@ public class UIManager : MonoBehaviour
         });
 
     }
+    public void ShowGameClear()
+    {
+        GameClearUi.SetActive(true);
+        tmpText1.text = "";
+        board1.anchoredPosition = new Vector2(0, 1000); // 화면 위에서 시작
+        homeButton1.alpha = 0;
+        NextButton.alpha = 0;
+        retryButton1.alpha = 0;
+        bg1.alpha = 0;
+
+        bg1.DOFade(1, 0.3f).OnComplete(() =>
+        {
+            board1.DOAnchorPos(originalPos1, 0.6f).SetEase(Ease.OutBounce).OnComplete(() =>
+            {
+                StartCoroutine(StartTyping1());
+
+            });
+        });
+
+    }
 
 
+    IEnumerator StartTyping1()
+    {
+        
+        StartCoroutine(TypeText1());
+        yield return new WaitForSeconds(0.6f);
+        homeButton1.DOFade(1, 0.3f);
+        NextButton.DOFade(1, 0.3f);
+        retryButton1.DOFade(1, 0.3f);
+
+    }
     IEnumerator StartTyping()
     {
         StartCoroutine(TypeText());
@@ -86,6 +162,14 @@ public class UIManager : MonoBehaviour
         foreach (char c in fullText)
         {
             tmpText.text += c;
+            yield return new WaitForSeconds(typingSpeed);
+        }
+    } 
+    private IEnumerator TypeText1()
+    {
+        foreach (char c in fullText)
+        {
+            tmpText1.text += c;
             yield return new WaitForSeconds(typingSpeed);
         }
     }

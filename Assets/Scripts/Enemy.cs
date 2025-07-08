@@ -31,9 +31,10 @@ public class Enemy : MonoBehaviour
     public void SetHp(int damage)
     {
         currentHp -= damage;
-        if (currentHp < 0)
+        if (currentHp <= 0)
         {
             currentHp = 0;
+            GameManager.Instance.score += 100;
             Destroy(this.gameObject);
         }
     }
@@ -80,7 +81,7 @@ public class Enemy : MonoBehaviour
         if (isFInd)
         {
             pos = GameObject.Find("Player").transform.position - transform.position;
-            rigid.velocity = new Vector3(pos.x, 0, 0);
+            rigid.velocity = new Vector3(pos.x, rigid.velocity.y, 0);
             /*else//감지 안됬을때 움직이는 코드임
             {
                 rigid.AddForce(Vector2.right,ForceMode2D.Impulse);
@@ -93,20 +94,29 @@ public class Enemy : MonoBehaviour
         }
 
 
-        rigid.velocity = new Vector2(rigid.velocity.x * 0.99f, 0);
+        rigid.velocity = new Vector2(rigid.velocity.x * 0.99f, rigid.velocity.y);
     }
 
 
     IEnumerator ShootBullet()
     {
-       if(isShoot)
+        if (isShoot)
         {
             isShoot = false;
             pos = GameObject.Find("Player").transform.position - transform.position;
             GameObject ammo = bullet;
             GameObject.Instantiate(ammo, transform.GetChild(0).transform.position, Quaternion.identity);
-            yield return new WaitForSeconds(0.75f);
-            isShoot=true;
+            AudioManager.instance.PlaySfx(Sfx.EnemyShot);
+            yield return new WaitForSeconds(1.5f);
+            isShoot = true;
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("trap"))
+        {
+            SetHp(99);
         }
     }
 }

@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,6 +7,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public bool isPause = false;
+    public int score = 0;
     bool isTIme = false;
     public TextMeshProUGUI timer;
     public bool StageClear = false;                         //스테이지 클리어
@@ -26,7 +29,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        AudioManager.instance.PlayBgm(true);
     }
 
     // Update is called once per frame
@@ -40,7 +43,7 @@ public class GameManager : MonoBehaviour
     IEnumerator Timer()
     {
         
-        if(!StageClear && !StageOver && !isTIme)
+        if(!StageClear && !StageOver && !isTIme && !isPause)
         {
             isTIme = true;
             timer.text = "Time\n" + overTime;

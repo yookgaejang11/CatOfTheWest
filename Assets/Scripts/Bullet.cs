@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Tilemaps;
 using UnityEngine;
 
 public enum TargetType
 {
     Player,
     Enemy,
+    Skeleton,
 }
 
 public class Bullet : MonoBehaviour
@@ -53,6 +53,7 @@ public class Bullet : MonoBehaviour
     {
             if (targetType == TargetType.Player)
             {
+            Physics2D.IgnoreLayerCollision(8, 9, true);
                 if (newPos.x < 0)
                 {
                     rigid.AddForce(Vector2.left * speed);
@@ -83,13 +84,32 @@ public class Bullet : MonoBehaviour
                     isAttack = false;
                     collision.gameObject.GetComponent<Move>().SetHp(damage);
                 }
-                else if (targetType == TargetType.Enemy)
+                else if (targetType == TargetType.Enemy && collision.gameObject.GetComponent<Enemy>())
                 {
                     isAttack = false;
                     collision.gameObject.GetComponent<Enemy>().SetHp(damage);
                 }
+                else if (targetType == TargetType.Enemy && collision.gameObject.GetComponent<enemy_Skeleton>())
+                {
+                    isAttack = false;
+                    collision.gameObject.GetComponent<enemy_Skeleton>().SetHp(damage);
+                }
+
+
             }
+
+            
            
+            Destroy(this.gameObject);
+        }
+
+        
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
             Destroy(this.gameObject);
         }
     }

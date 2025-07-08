@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class Move : MonoBehaviour
 {
+    public LayerMask groundLayer;
+    public Transform groundCheck;
+    public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
     bool isHit = false;
     public Vector2 moveDirection;                                      //ÀÌµ¿º¤ÅÍ
     public float MoveX = 0;
@@ -30,18 +33,19 @@ public class Move : MonoBehaviour
     Rigidbody2D rigid;                                          //rigidbody2D
     public float GunPower = 5;                                  //ÃÑ ÆÄ¿ö
     public bool isGround;                                       //¶¥¿¡ ´ê¾Ò´Â°¡ ÆÇÁ¤
-    public float rayDistance = 3;                               //·¹ÀÌ ±æÀÌ 
-    public RaycastHit2D ray;                                           //·¹ÀÌÄ³½ºÆ®
     public float maxSpeedx;
     public float maxSpeedy;
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        currentBullet = Mathf.Max(currentBullet, 0);
     }
     private void Start()
     {
-
+        Time.timeScale = 1;
+        Physics2D.IgnoreLayerCollision(7, 8, false);
+        Physics2D.IgnoreLayerCollision(7, 9, false);
     }
     private void Update()
     {
@@ -49,8 +53,7 @@ public class Move : MonoBehaviour
         if (!isDie)
         {
             currentspeed = rigid.velocity.magnitude;
-            Debug.DrawRay(transform.position, Vector3.down * rayDistance, Color.red);
-            ray = Physics2D.Raycast(transform.position, Vector2.down, rayDistance, LayerMask.GetMask("Ground"));
+           
 
             if (Input.GetButtonUp("Horizontal") && isGround)
             {
@@ -75,7 +78,11 @@ public class Move : MonoBehaviour
                 animator.SetBool("isMove", false);
             }
             PlayerMove();
-            StartCoroutine(Shootgun());
+            if (Input.GetKeyDown(KeyCode.Mouse0) && currentBullet > 0)
+            {
+                StartCoroutine(Shootgun());
+            }
+            
             /*if (isGround)
             {
                 speed = 5;
@@ -103,10 +110,28 @@ public class Move : MonoBehaviour
             currentBullet = maxBullet;
         }
 
+       
         bulletText.text = "x" + currentBullet;
 
     }
 
+    private void FixedUpdate()
+    {
+        CheckGround();
+    }
+
+    void CheckGround()
+    {
+        // ¹Ù´Ú ÆÇÁ¤
+        isGround = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
+        Debug.Log("isGround: " + isGround);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
+    }
 
     private void HpUpdate()
     {
@@ -128,15 +153,23 @@ public class Move : MonoBehaviour
         {
             currentHp -= damage;
             StartCoroutine(Invisible());
+            
             if (currentHp <= 0 && !isDie)
             {
                 Debug.Log("dfadf");
                 currentHp = 0;
                 isDie = true;
-
+                
                 UIManager.Instance.fullText = "Game\nOver";
                 UIManager.Instance.ShowGameOver();
                 GameManager.Instance.StageOver = true;
+                AudioManager.instance.PlaySfx(Sfx.GameOver);
+                AudioManager.instance.PlayBgm(false);
+                this.gameObject.SetActive(false);
+            }
+            else
+            {
+                AudioManager.instance.PlaySfx(Sfx.Hit1);
             }
             HpUpdate();
         }
@@ -146,7 +179,7 @@ public class Move : MonoBehaviour
     IEnumerator Invisible()
     {
         Physics2D.IgnoreLayerCollision(7, 8, true);
-
+        Physics2D.IgnoreLayerCollision(7,9,true);
         isHit = true;
         this.gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
         yield return new WaitForSeconds(0.1f);
@@ -174,7 +207,7 @@ public class Move : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         this.gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1f);
         Physics2D.IgnoreLayerCollision(7, 8, false);
-
+        Physics2D.IgnoreLayerCollision(7, 9, false);
         isHit = false;
     }
     public void PlayerMove()
@@ -210,62 +243,56 @@ public class Move : MonoBehaviour
         {
             rigid.velocity = new Vector2(rigid.velocity.x,maxSpeedy);
         }
+
+        float moveX = Input.GetAxis("Horizontal");
+        mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        angle = Mathf.Atan2(mouse.y - target.transform.position.y, mouse.x - target.transform.position.x) * Mathf.Rad2Deg;
+        target.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
 
 
 
     IEnumerator Shootgun()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        angle = Mathf.Atan2(mouse.y - target.transform.position.y, mouse.x - target.transform.position.x) * Mathf.Rad2Deg;
-        target.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        if(currentBullet <= 0)
+        {
+            yield break;
+        }
 
         jumpdir.transform.rotation = Quaternion.AngleAxis(angle - 90, Vector3.forward);
 
-        if (Input.GetKeyDown(KeyCode.Mouse0) && currentBullet > 0)
+        maxSpeedx = 20;
+        GameObject shootObj = Instantiate(bullet, target.transform.position, target.transform.rotation);
+        moveDirection = -jumpdir.transform.up * GunPower;
+        target.GetComponent<Animator>().SetTrigger("isAttack");
+        StartCoroutine(Shake(0.4f, 0.3f));
+        Debug.Log("dd");
+        rigid.velocity = new Vector2(rigid.velocity.x, rigid.velocity.y) + moveDirection;
+        yield return new WaitForSeconds(0.1f);
+        if (!isGround)
         {
-            maxSpeedx = 15;
-            GameObject shootObj = Instantiate(bullet, target.transform.position, target.transform.rotation);
-            moveDirection = -jumpdir.transform.up * GunPower;
-            target.GetComponent<Animator>().SetTrigger("isAttack");
-            StartCoroutine(Shake(0.4f, 0.3f));
-            Debug.Log("dd");
-            rigid.velocity = new Vector2(rigid.velocity.x, rigid.velocity.y) + moveDirection;
-            if (!isGround)
-            {
-                currentBullet -= 1;
+            currentBullet -= 1;
 
-            }
-            yield return new WaitForSeconds(0.05f);
-            for (float i = maxSpeedx; i > 10; i--)
-            {
-                maxSpeedx -= 0.5f;
-                i = maxSpeedx;
-                yield return new WaitForSeconds(0.05f);
-            }
-            maxSpeedx = 10;
         }
-       
+        AudioManager.instance.PlaySfx(AudioManager.instance.sfx = Sfx.Playershot);
+        yield return new WaitForSeconds(0.05f);
+        for (float i = maxSpeedx; i > 10; i--)
+        {
+            maxSpeedx -= 0.5f;
+            i = maxSpeedx;
+            yield return new WaitForSeconds(0.05f);
+        }
+        maxSpeedx = 10;
+        
+       if(currentBullet < 0)
+        {
+            Debug.LogError("ÃÑ¾Ë ¼ö -");
+        }
     }
 
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (ray.collider != null)
-        {
-            Debug.Log("¿Ö µÊ?");
-            if (collision.gameObject.CompareTag("Ground") && ray.collider.name == "floor")
-            {
-
-                isGround = true;
-            }
-        }
-        else
-        {
-            isGround = false;
-            Debug.Log("adfasdf");
-        }
 
         if (collision.gameObject.CompareTag("Enemy"))
         {
@@ -275,19 +302,26 @@ public class Move : MonoBehaviour
 
         if(collision.gameObject.name == "traps")
         {
-            SetHp(1);
+            SetHp(3);
         }
         
 
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Clear"))
         {
-            isGround = false;   
+            UIManager.Instance.fullText = "Game\nClear";
+            UIManager.Instance.ShowGameClear();
+            GameManager.Instance.StageClear = true;
+            AudioManager.instance.PlaySfx(Sfx.GameOver);
+            AudioManager.instance.PlayBgm(false);
+            gameObject.SetActive(false);
         }
     }
+
     public IEnumerator Shake(float time, float power)
     {
         Transform camTransform = Camera.main.transform;
