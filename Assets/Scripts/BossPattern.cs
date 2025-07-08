@@ -9,6 +9,7 @@ public class BossPattern : MonoBehaviour
     public Transform playerTransform;
     private SpriteRenderer spriteRenderer;
 
+    [SerializeField] ParticleSystem kungParticle;
     public GameObject stingHitBox;
     public GameObject slashHitBox;
     public GameObject kungHitBox;
@@ -56,7 +57,6 @@ public class BossPattern : MonoBehaviour
         }
         else
         {
-            rb.velocity = Vector2.zero;
             animator.SetBool("walk", false);
         }
     }
@@ -124,6 +124,7 @@ public class BossPattern : MonoBehaviour
     {
         animator.SetTrigger("kung");
         yield return new WaitForSeconds(0.5f);
+        kungParticle.Play();
         kungHitBox.SetActive(true);
         yield return new WaitForSeconds(0.4f);
         kungHitBox.SetActive(false);
@@ -140,6 +141,8 @@ public class BossPattern : MonoBehaviour
     }
     IEnumerator LongSpin()
     {
+        Vector2 dir = (playerTransform.position - transform.position).normalized;
+        rb.velocity = new Vector2(dir.x * moveSpeed, rb.velocity.y);
         animator.SetBool("long",true);
         spinHitBox.SetActive(true);
         yield return new WaitForSeconds(1.5f);
