@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BossPattern : MonoBehaviour
 {
+    public Slider slider;
     public Animator animator;
     public Rigidbody2D rb;
     public Transform playerTransform;
@@ -21,20 +23,25 @@ public class BossPattern : MonoBehaviour
     public float rushMinDistance;
     public float moveSpeed;
 
-    public int maxHp = 100;
-    private int currentHp;
+    public float maxHp = 100;
+    public float currentHp = 100;
     private bool isAttacking = false;
     private bool isRushing = false;
+    
 
+    private bool isDie = false;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        
     }
 
     private void Start()
     {
         currentHp = maxHp;
+        slider.maxValue = maxHp;
+        slider.value = maxHp;
         DisableAllHitBoxes();
         StartCoroutine(PatternLoop());
     }
@@ -103,6 +110,7 @@ public class BossPattern : MonoBehaviour
     IEnumerator Sting()
     {
         animator.SetTrigger("sting");
+        AudioManager.instance.PlaySfx(Sfx.Sting);
         yield return new WaitForSeconds(0.3f);
         stingHitBox.SetActive(true);
         yield return new WaitForSeconds(0.2f);
@@ -113,6 +121,7 @@ public class BossPattern : MonoBehaviour
     IEnumerator Slash()
     {
         animator.SetTrigger("slash");
+        AudioManager.instance.PlaySfx(Sfx.Slash);
         yield return new WaitForSeconds(0.4f);
         slashHitBox.SetActive(true);
         yield return new WaitForSeconds(0.25f);
@@ -124,8 +133,10 @@ public class BossPattern : MonoBehaviour
     {
         animator.SetTrigger("kung");
         yield return new WaitForSeconds(0.5f);
+        AudioManager.instance.PlaySfx(Sfx.Stomp);
         kungParticle.Play();
         kungHitBox.SetActive(true);
+        ShakeCamera.Instance.Shaking(5, 1, 0.5f);
         yield return new WaitForSeconds(0.4f);
         kungHitBox.SetActive(false);
         yield return new WaitForSeconds(0.5f);
@@ -133,22 +144,64 @@ public class BossPattern : MonoBehaviour
 
     IEnumerator Spin()
     {
+        
         animator.SetTrigger("spin");
         spinHitBox.SetActive(true);
+        AudioManager.instance.PlaySfx(Sfx.Slash);
+        AudioManager.instance.PlaySfx(Sfx.Slash);
         yield return new WaitForSeconds(1f);
         spinHitBox.SetActive(false);
         yield return new WaitForSeconds(0.5f);
     }
     IEnumerator LongSpin()
     {
-        Vector2 dir = (playerTransform.position - transform.position).normalized;
-        rb.velocity = new Vector2(dir.x * moveSpeed, rb.velocity.y);
-        animator.SetBool("long",true);
+        float duration = 1.5f;
+        float timer = 0f;
+        animator.SetBool("long", true);
         spinHitBox.SetActive(true);
-        yield return new WaitForSeconds(1.5f);
+
+        while (timer < duration)
+        {
+            // 플레이어를 지속적으로 따라감
+            Vector2 dir = (playerTransform.position - transform.position).normalized;
+            rb.velocity = new Vector2(dir.x * moveSpeed, rb.velocity.y);
+            AudioManager.instance.PlaySfx(Sfx.Slash);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        // 정지 + 초기화
+        rb.velocity = Vector2.zero;
         spinHitBox.SetActive(false);
         animator.SetBool("long", false);
         yield return new WaitForSeconds(0.5f);
+    }
+
+    public void SetHp(float damage)
+    {
+        if(!isDie)
+        { 
+            currentHp -= damage;
+            slider.value = currentHp;
+            StartCoroutine(Hit());
+            if(currentHp <= 0)
+            {
+                slider.gameObject.SetActive(false);
+                currentHp = 0;
+                isDie = true;
+                animator.SetTrigger("die");
+                DisableAllHitBoxes();
+            }
+
+        }
+    }
+
+    IEnumerator Hit()
+    {
+        AudioManager.instance.PlaySfx(Sfx.hit_mino);
+        this.gameObject.GetComponent<SpriteRenderer>().color = new Color(1,0,0,0.75f);
+        yield return new WaitForSeconds(0.1f);
+        this.gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, 1f);
 
     }
 
@@ -178,7 +231,7 @@ public class BossPattern : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (isRushing && collision.CompareTag("Player"))
+        if (isRushing && collision.CompareTag("Player") && !isDie)
         {
             Move player = collision.GetComponent<Move>();
             if (player != null)

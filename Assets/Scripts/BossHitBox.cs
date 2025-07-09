@@ -14,6 +14,7 @@ public class BossHitBox : MonoBehaviour
             if (player != null)
             {
                 player.SetHp(damage);
+                
             }
         }
     }

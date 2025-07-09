@@ -94,6 +94,11 @@ public class Bullet : MonoBehaviour
                     isAttack = false;
                     collision.gameObject.GetComponent<enemy_Skeleton>().SetHp(damage);
                 }
+                else if (targetType == TargetType.Enemy && collision.gameObject.GetComponent<BossPattern>())
+                {
+                    isAttack = false;
+                    collision.gameObject.gameObject.GetComponent<BossPattern>().SetHp(5);
+                }
 
 
             }

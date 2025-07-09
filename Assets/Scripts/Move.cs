@@ -165,7 +165,9 @@ public class Move : MonoBehaviour
                 GameManager.Instance.StageOver = true;
                 AudioManager.instance.PlaySfx(Sfx.GameOver);
                 AudioManager.instance.PlayBgm(false);
-                this.gameObject.SetActive(false);
+                AudioManager.instance.sfxVolume = 0;
+                AudioManager.instance.bgmVolume = 0;
+                AudioManager.instance.VolumReset();
             }
             else
             {
@@ -318,7 +320,15 @@ public class Move : MonoBehaviour
             GameManager.Instance.StageClear = true;
             AudioManager.instance.PlaySfx(Sfx.GameOver);
             AudioManager.instance.PlayBgm(false);
-            gameObject.SetActive(false);
+            AudioManager.instance.sfxVolume = 0;
+            AudioManager.instance.bgmVolume = 0;
+            AudioManager.instance.VolumReset();
+        }
+
+
+        if (collision.gameObject.CompareTag("ChinemachineZone"))
+        {
+            UIManager.Instance.ActiveTimeLine();
         }
     }
 
