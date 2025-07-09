@@ -11,7 +11,7 @@ public class ShakeCamera : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
         }
@@ -44,8 +44,11 @@ public class ShakeCamera : MonoBehaviour
         yield return new WaitForSeconds(duringTime);
         perlin.m_AmplitudeGain = 0;
         perlin.m_FrequencyGain = 0;
+    }
 
-        yield return null;
+    public void Shaking(float ampitudeGain, float FrequencyGain, float duringTime)
+    {
+        StartCoroutine(Shake(ampitudeGain, FrequencyGain, duringTime));
     }
 
     public static ShakeCamera Instance

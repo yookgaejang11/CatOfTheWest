@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public enum Sfx { Hit1,Hit2, GameOver = 2, Playershot,EnemyShot,skeletonAwake,skeleton_die,punch,SkeletonWalk}
+public enum Sfx { Hit1,Hit2, GameOver = 2, Playershot,EnemyShot,skeletonAwake,skeleton_die,punch,SkeletonWalk,Slash,Sting,hit_mino,Stomp}
 
 public class AudioManager : MonoBehaviour
 {
@@ -12,6 +12,7 @@ public class AudioManager : MonoBehaviour
     [Header("#BGM")]
     public AudioClip bgmClip;
     public float bgmVolume;
+    public float curBgVolume;
     AudioSource bgmPlayer;
 
     [Header("#SFX")]
@@ -20,6 +21,7 @@ public class AudioManager : MonoBehaviour
     public int channels;
     AudioSource[] sfxPlayers;
     int channelIndex;
+    public float curSfxVolume;
 
     public Sfx sfx;
 
@@ -48,7 +50,7 @@ public class AudioManager : MonoBehaviour
         bgmObj.transform.parent = transform;
         bgmPlayer = bgmObj.AddComponent<AudioSource>();
         bgmPlayer.playOnAwake = false;
-        bgmPlayer.volume = bgmVolume;
+        bgmPlayer.volume = curBgVolume;
         bgmPlayer.clip = bgmClip;
         bgmPlayer.loop =true;
 
@@ -62,7 +64,7 @@ public class AudioManager : MonoBehaviour
         {
             sfxPlayers[i] = sfxObj.AddComponent<AudioSource>();
             sfxPlayers[i].playOnAwake = false;
-            sfxPlayers[i].volume = sfxVolume;
+            sfxPlayers[i].volume = curSfxVolume;
 
         }
     }
@@ -78,6 +80,17 @@ public class AudioManager : MonoBehaviour
         {
             bgmPlayer.Stop();
         }
+    }
+
+
+    public void VolumReset()
+    {
+        for (int i = 0; i < sfxPlayers.Length; i++)
+        {
+            sfxPlayers[i].volume = sfxVolume;
+
+        }
+        bgmPlayer.volume = bgmVolume;
     }
 
     public void PlaySfx(Sfx sfx)

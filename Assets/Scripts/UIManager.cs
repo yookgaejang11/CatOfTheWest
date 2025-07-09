@@ -3,10 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour
 {
+    public PlayableDirector PlayableDirector;
+    public CanvasGroup PlayerUI;
+    public CanvasGroup bossUi;
     bool isPause;
     public GameObject pauseUi;
     private static UIManager instance;
@@ -84,6 +88,25 @@ public class UIManager : MonoBehaviour
     public void HomeBtn()
     {
         SceneManager.LoadScene(0);
+    }
+
+
+
+    public void ActiveTimeLine()
+    {
+        PlayerUI.alpha = 0;
+        bossUi.alpha = 0;
+        StartCoroutine(PlayTimeLine());
+    }
+
+
+    IEnumerator PlayTimeLine()
+    {
+        PlayableDirector.Play();
+        yield return new WaitForSeconds((float)PlayableDirector.duration);
+        AudioManager.instance.PlayBgm(true);
+        PlayerUI.alpha = 1;
+        bossUi.DOFade(1,0.3f);
     }
 
     public void RetryBtn()
