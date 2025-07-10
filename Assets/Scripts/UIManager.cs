@@ -103,10 +103,17 @@ public class UIManager : MonoBehaviour
     IEnumerator PlayTimeLine()
     {
         PlayableDirector.Play();
+        Debug.Log(PlayableDirector.duration);
         yield return new WaitForSeconds((float)PlayableDirector.duration);
         AudioManager.instance.PlayBgm(true);
+        yield return new WaitForSeconds(0.1f);
         PlayerUI.alpha = 1;
-        bossUi.DOFade(1,0.3f);
+        yield return new WaitForSeconds(0.1f);
+        bossUi.DOFade(1,0.25f);
+        GameManager.Instance.moveContainer();
+        GameObject.Find("Mino").GetComponent<BossPattern>().isActive = true;
+        GameObject.Find("Mino").GetComponent<BossPattern>().LoopPattern();
+        GameObject.Find("TimeLine").gameObject.tag = "Untagged";
     }
 
     public void RetryBtn()

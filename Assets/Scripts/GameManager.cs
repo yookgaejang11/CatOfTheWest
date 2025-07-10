@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     public bool StageOver = false;                          //스테이지 실패
     private static GameManager instance;
     public float overTime;                                  //오버타임
+    public GameObject[] continers;
+
     private void Awake()
     {
         if(instance == null)
@@ -40,6 +42,27 @@ public class GameManager : MonoBehaviour
         }
         
     }
+    
+    public void moveContainer()
+    {
+        StartCoroutine(Removecontainer());
+    }
+
+
+    IEnumerator Removecontainer()
+    {
+        float timer = 0;
+        while(timer <= 2)
+        {
+            continers[0].transform.Translate(-0.5f, 0, 0);
+            continers[1].transform.Translate(-0.5f, 0, 0);
+            yield return new WaitForSeconds(0.01f);
+            timer += 0.01f;
+        }
+        Destroy(continers[0]);
+        Destroy(continers[1]);
+    }
+
 
     // Update is called once per frame
     void Update()

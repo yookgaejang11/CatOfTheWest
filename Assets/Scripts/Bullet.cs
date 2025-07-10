@@ -97,7 +97,7 @@ public class Bullet : MonoBehaviour
                 else if (targetType == TargetType.Enemy && collision.gameObject.GetComponent<BossPattern>())
                 {
                     isAttack = false;
-                    collision.gameObject.gameObject.GetComponent<BossPattern>().SetHp(5);
+                    collision.gameObject.gameObject.GetComponent<BossPattern>().SetHp(2);
                 }
 
 
