@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class HidingPlatform : MonoBehaviour
 {
+    public float droptime;
 
     void Start()
     {
@@ -18,7 +19,7 @@ public class HidingPlatform : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Invoke("drop", 3f);
+            Invoke("drop", droptime);
 
         }
         if (collision.gameObject.CompareTag("trap"))
