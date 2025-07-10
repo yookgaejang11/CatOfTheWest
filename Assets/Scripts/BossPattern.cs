@@ -1,10 +1,13 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class BossPattern : MonoBehaviour
 {
+    public bool isActive = false;
     public Slider slider;
     public Animator animator;
     public Rigidbody2D rb;
@@ -29,7 +32,7 @@ public class BossPattern : MonoBehaviour
     private bool isRushing = false;
     
 
-    private bool isDie = false;
+    public bool isDie = false;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -48,63 +51,91 @@ public class BossPattern : MonoBehaviour
 
     private void Update()
     {
-        float distance = Vector2.Distance(transform.position, playerTransform.position);
-
-        // 방향 전환
-        if (playerTransform.position.x < transform.position.x)
-            spriteRenderer.flipX = false;
-        else
-            spriteRenderer.flipX = true;
-
-        // 따라가기
-        if (distance <= detectionRange && distance > attackRange && !isAttacking && !isRushing)
+        if(isActive)
         {
-            FollowPlayer();
-            animator.SetBool("walk", true);
+            if(isDie)
+            {
+                return;
+            }
+            float distance = Vector2.Distance(transform.position, playerTransform.position);
+
+            // 방향 전환
+            if (playerTransform.position.x < transform.position.x)
+                spriteRenderer.flipX = false;
+            else
+                spriteRenderer.flipX = true;
+
+            // 따라가기
+            if (distance <= detectionRange && distance > attackRange && !isAttacking && !isRushing)
+            {
+                FollowPlayer();
+                animator.SetBool("walk", true);
+            }
+            else
+            {
+                animator.SetBool("walk", false);
+            }
         }
-        else
-        {
-            animator.SetBool("walk", false);
-        }
+        
     }
 
     private void FollowPlayer()
     {
+        if(isDie)
+        {
+            return;
+        }
         Vector2 dir = (playerTransform.position - transform.position).normalized;
         rb.velocity = new Vector2(dir.x * moveSpeed, rb.velocity.y);
+    }
+
+    public void LoopPattern()
+    {
+        StartCoroutine(PatternLoop());
     }
 
     IEnumerator PatternLoop()
     {
         while (currentHp > 0)
         {
-            float distance = Vector2.Distance(transform.position, playerTransform.position);
-
-            if (distance <= attackRange && !isAttacking)
+            if (isActive)
             {
-                isAttacking = true;
-                animator.SetBool("walk", false);
-                rb.velocity = Vector2.zero;
-
-                int pattern = Random.Range(0, 5);
-                switch (pattern)
+                if (isDie)
                 {
-                    case 0: yield return StartCoroutine(Sting()); break;
-                    case 1: yield return StartCoroutine(Slash()); break;
-                    case 2: yield return StartCoroutine(Kung()); break;
-                    case 3: yield return StartCoroutine(Spin()); break;
-                    case 4: yield return StartCoroutine(LongSpin()); break;
-                    //case 4:
-                    //    if (distance > rushMinDistance)
-                    //        yield return StartCoroutine(Rush());
-                    //    break;
+                    yield return new WaitForSeconds(0.1f);
+                    continue;
                 }
-                DisableAllHitBoxes();
-                isAttacking = false;
-            }
+                float distance = Vector2.Distance(transform.position, playerTransform.position);
 
-            yield return new WaitForSeconds(1f);
+                if (distance <= attackRange && !isAttacking)
+                {
+                    isAttacking = true;
+                    animator.SetBool("walk", false);
+                    rb.velocity = Vector2.zero;
+
+                    int pattern = Random.Range(0, 5);
+                    switch (pattern)
+                    {
+                        case 0: yield return StartCoroutine(Sting()); break;
+                        case 1: yield return StartCoroutine(Slash()); break;
+                        case 2: yield return StartCoroutine(Kung()); break;
+                        case 3: yield return StartCoroutine(Spin()); break;
+                        case 4: yield return StartCoroutine(LongSpin()); break;
+                    }
+
+                    DisableAllHitBoxes();
+                    isAttacking = false;
+                }
+
+                yield return new WaitForSeconds(1f);
+            }
+            else
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
         }
+        
+       yield return null;
     }
 
     IEnumerator Sting()
@@ -186,10 +217,12 @@ public class BossPattern : MonoBehaviour
             StartCoroutine(Hit());
             if(currentHp <= 0)
             {
-                slider.gameObject.SetActive(false);
+                slider.gameObject.GetComponent<CanvasGroup>().DOFade(0, 0.25f);
                 currentHp = 0;
                 isDie = true;
                 animator.SetTrigger("die");
+                this.gameObject.GetComponent<BoxCollider2D>().size = new Vector2(0,0);
+                rb.bodyType = RigidbodyType2D.Static;
                 DisableAllHitBoxes();
             }
 
